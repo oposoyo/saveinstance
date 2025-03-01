@@ -2105,11 +2105,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		
 		ToSaveList = tmp
 
--- Add this before processing ToSaveList
-local terrain = workspace:FindFirstChildOfClass("Terrain")
-if terrain then
-    table.insert(ToSaveList, 1, terrain) -- Insert Terrain at the start
-end
+
 		if ToSaveInstance then
 			table.insert(ToSaveList, 1, ToSaveInstance)
 		end
@@ -2889,10 +2885,24 @@ end
 			end
 
 			if SkipEntirely ~= false then -- ? We save instance without it's descendants in this case (== false)
-				local Children = InstanceOverride and InstanceOverride.__Children or instance:GetChildren()
-
-				if #Children ~= 0 then
-					save_hierarchy(Children)
+				local Children
+				if instance.ClassName == "Workspace" then
+					-- Reorder children to put Terrain first
+					local allChildren = instance:GetChildren()
+					local terrainIndex
+					for i, child in ipairs(allChildren) do
+						if child.ClassName == "Terrain" then
+							terrainIndex = i
+							break
+						end
+					end
+					if terrainIndex then
+						local terrain = table.remove(allChildren, terrainIndex)
+						table.insert(allChildren, 1, terrain)
+					end
+					Children = allChildren
+				else
+					Children = InstanceOverride and InstanceOverride.__Children or instance:GetChildren()
 				end
 			end
 
