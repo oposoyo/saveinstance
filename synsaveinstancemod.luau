@@ -2102,9 +2102,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 
-		
 		ToSaveList = tmp
-
 
 		if ToSaveInstance then
 			table.insert(ToSaveList, 1, ToSaveInstance)
@@ -2432,25 +2430,25 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function ReturnItem(className, instance)
-    local ref = referents[instance]
-    if not ref then
-        ref = ref_size
-        referents[instance] = ref
-        ref_size += 1
-    end
+		local ref = referents[instance]
+		if not ref then
+			ref = ref_size
+			referents[instance] = ref
+			ref_size += 1
+		end
 
-    local itemstring = '<Item class="' .. className .. '" referent="' .. ref .. '"><Properties>'
-    
-    -- Always capture Terrain data
-    if className == "Terrain" then
-        local physicsgrid = base64encode(gethiddenpropertygethiddenproperty(workspace.Terrain, "PhysicsGrid"))
-        local smoothgrid = base64encode(gethiddenpropertygethiddenproperty(workspace.Terrain, "SmoothGrid"))
-        itemstring = itemstring ..
-            '<BinaryString name="PhysicsGrid"><![CDATA[' .. physicsgrid .. ']]></BinaryString>' ..
-            '<BinaryString name="SmoothGrid"><![CDATA[' .. smoothgrid .. ']]></BinaryString>'
-    end
-    return itemstring
-end
+		local itemstring = '<Item class="' .. className .. '" referent="' .. ref .. '"><Properties>'
+		if className == "Terrain" and realcheck then
+			writefile("SmoothGrid.txt", gethiddenpropertygethiddenproperty(workspace.Terrain, "SmoothGrid"))
+			writefile("PhysicsGrid.txt", gethiddenpropertygethiddenproperty(workspace.Terrain, "PhysicsGrid"))
+			local physicsgrid = to_base64(readfile("PhysicsGrid.txt"))
+			local smoothgrid = to_base64(readfile("SmoothGrid.txt"))
+			itemstring = itemstring ..
+				'<BinaryString name="PhysicsGrid"><![CDATA[' .. physicsgrid .. ']]></BinaryString>' ..
+				'<BinaryString name="SmoothGrid"><![CDATA[' .. smoothgrid .. ']]></BinaryString>'
+		end
+		return itemstring
+	end
 
 	local function ReturnProperty(tag, propertyName, value)
 		return "<" .. tag .. ' name="' .. propertyName .. '">' .. value .. "</" .. tag .. ">"
@@ -2885,24 +2883,10 @@ end
 			end
 
 			if SkipEntirely ~= false then -- ? We save instance without it's descendants in this case (== false)
-				local Children
-				if instance.ClassName == "Workspace" then
-					-- Reorder children to put Terrain first
-					local allChildren = instance:GetChildren()
-					local terrainIndex
-					for i, child in ipairs(allChildren) do
-						if child.ClassName == "Terrain" then
-							terrainIndex = i
-							break
-						end
-					end
-					if terrainIndex then
-						local terrain = table.remove(allChildren, terrainIndex)
-						table.insert(allChildren, 1, terrain)
-					end
-					Children = allChildren
-				else
-					Children = InstanceOverride and InstanceOverride.__Children or instance:GetChildren()
+				local Children = InstanceOverride and InstanceOverride.__Children or instance:GetChildren()
+
+				if #Children ~= 0 then
+					save_hierarchy(Children)
 				end
 			end
 
