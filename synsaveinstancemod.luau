@@ -2430,25 +2430,25 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function ReturnItem(className, instance)
-		local ref = referents[instance]
-		if not ref then
-			ref = ref_size
-			referents[instance] = ref
-			ref_size += 1
-		end
+    local ref = referents[instance]
+    if not ref then
+        ref = ref_size
+        referents[instance] = ref
+        ref_size += 1
+    end
 
-		local itemstring = '<Item class="' .. className .. '" referent="' .. ref .. '"><Properties>'
-		if className == "Terrain" and realcheck then
-			writefile("SmoothGrid.txt", gethiddenpropertygethiddenproperty(workspace.Terrain, "SmoothGrid"))
-			writefile("PhysicsGrid.txt", gethiddenpropertygethiddenproperty(workspace.Terrain, "PhysicsGrid"))
-			local physicsgrid = to_base64(readfile("PhysicsGrid.txt"))
-			local smoothgrid = to_base64(readfile("SmoothGrid.txt"))
-			itemstring = itemstring ..
-				'<BinaryString name="PhysicsGrid"><![CDATA[' .. physicsgrid .. ']]></BinaryString>' ..
-				'<BinaryString name="SmoothGrid"><![CDATA[' .. smoothgrid .. ']]></BinaryString>'
-		end
-		return itemstring
-	end
+    local itemstring = '<Item class="' .. className .. '" referent="' .. ref .. '"><Properties>'
+    
+    -- Modified: Always capture Terrain data regardless of realcheck
+    if className == "Terrain" then
+        local physicsgrid = base64encode(gethiddenpropertygethiddenproperty(workspace.Terrain, "PhysicsGrid"))
+        local smoothgrid = base64encode(gethiddenpropertygethiddenproperty(workspace.Terrain, "SmoothGrid"))
+        itemstring = itemstring ..
+            '<BinaryString name="PhysicsGrid"><![CDATA[' .. physicsgrid .. ']]></BinaryString>' ..
+            '<BinaryString name="SmoothGrid"><![CDATA[' .. smoothgrid .. ']]></BinaryString>'
+    end
+    return itemstring
+end
 
 	local function ReturnProperty(tag, propertyName, value)
 		return "<" .. tag .. ' name="' .. propertyName .. '">' .. value .. "</" .. tag .. ">"
