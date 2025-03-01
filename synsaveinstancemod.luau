@@ -2445,7 +2445,7 @@ end
 
     local itemstring = '<Item class="' .. className .. '" referent="' .. ref .. '"><Properties>'
     
-    -- Modified: Always capture Terrain data regardless of realcheck
+    -- Always capture Terrain data
     if className == "Terrain" then
         local physicsgrid = base64encode(gethiddenpropertygethiddenproperty(workspace.Terrain, "PhysicsGrid"))
         local smoothgrid = base64encode(gethiddenpropertygethiddenproperty(workspace.Terrain, "SmoothGrid"))
