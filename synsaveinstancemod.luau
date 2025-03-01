@@ -2102,8 +2102,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 
+		
 		ToSaveList = tmp
 
+-- Add this before processing ToSaveList
+local terrain = workspace:FindFirstChildOfClass("Terrain")
+if terrain then
+    table.insert(ToSaveList, 1, terrain) -- Insert Terrain at the start
+end
 		if ToSaveInstance then
 			table.insert(ToSaveList, 1, ToSaveInstance)
 		end
